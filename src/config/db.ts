@@ -5,12 +5,10 @@ dotenv.config();
 
 export const connectDb = async () => {
   try {
-    const mongoURI = "mongodb://127.0.0.1:27017/notificationSystem";
-    console.log("mongoURI",mongoURI);
-    if (!mongoURI) {
+    if (!process.env.MONGO_URI) {
       throw new Error("MONGO_URI is not present in env file");
     }
-    await mongoose.connect(mongoURI);
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB connected");
   } catch (error) {
     console.log("Issue in connection with db");
