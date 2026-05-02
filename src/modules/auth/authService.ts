@@ -5,6 +5,7 @@ import { loginSchema } from "./dto/loginSchema";
 import { z } from "zod";
 import { AppError } from "../../utils/AppError";
 import jwt from "jsonwebtoken";
+import { nextTick } from "node:process";
 
 type RegisterUserInput = z.infer<typeof registerSchema>;
 type LoginUserInput = z.infer<typeof loginSchema>;
@@ -54,4 +55,12 @@ export const authService = {
 
     return { user: userObj, token };
   },
+
+  getUserById: async (data: string ) =>{
+        const user = await User.findById(data);
+        if(!user){
+          new AppError("User not present", 401);
+        }
+        return user ;
+  }
 };

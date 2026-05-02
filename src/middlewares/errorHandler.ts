@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { sendResponse } from "../utils/sendResponse";
 
 export const globalErrorHandler = (
   err: any,
@@ -12,21 +13,10 @@ export const globalErrorHandler = (
   // ✅ Zod validation error
   if (err.name === "ZodError") {
     statusCode = 400;
-    message = err.errors;
+    message = err.issues.map((e: any) => e.message);
   }
-
   return res.status(statusCode).json({
     success: false,
     message,
   });
 };
-
-
-
-
-
-
-
-
-
-
