@@ -7,6 +7,7 @@ import { AppError } from "../../utils/AppError";
 import { userService } from "../users/userService";
 
 export const notificationController = {
+   
   createNotification: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as any).user?.userId;
@@ -29,14 +30,42 @@ export const notificationController = {
       );
     },
   ),
-  getMyNotifications: asyncHandler(async(req: Request, res: Response, next:NextFunction)=>{
+  getMyNotifications: asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as any).user.userId;
-      if(!userId){
+      if (!userId) {
         throw new AppError("Unauthorized", 401);
       }
-     
-      const notifications = await notificationService.getMyNotifications(userId);
+
+      const notifications =
+        await notificationService.getMyNotifications(userId);
       return sendResponse(res, 200, true, "User Notifications", notifications);
-  })
-  
+    },
+  ),
+  markAsRead: asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = (req as any).user.userId;
+      const { id } = req.params as { id: string };
+      if (!id) {
+        throw new AppError("Id not found", 400);
+      }
+      const marked = await notificationService.markAsRead(id, userId);
+      return sendResponse(res, 200, true, "Notification marked as read");
+    },
+  ),
+  markAllAsRead: asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = (req as any).user.userId;
+      const result = await notificationService.markAllAsRead(userId);
+      return sendResponse(
+        res,
+        200,
+        true,
+        result.modifiedCount > 0
+          ? "All notifications marked as read"
+          : "No unread notifications",
+        result,
+      );
+    },
+  ),
 };
