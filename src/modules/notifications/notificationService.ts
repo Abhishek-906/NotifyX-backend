@@ -1,17 +1,20 @@
 import { Notification } from "./notificationModel";
-import { createNotificationSchema } from "./dto/notificationSchema";
-import { z } from "zod";
 import { AppError } from "../../utils/AppError";
 
-type CreateNotificationInput = z.infer<typeof createNotificationSchema>;
+type CreateNotificationServiceInput = {
+  senderUserId: string;
+  receiverUserId: string;
+  title: string;
+  message: string;
+};
 
 export const notificationService = {
-  createNotification: async (data: CreateNotificationInput) => {
+  createNotification: async (data: CreateNotificationServiceInput) => {
     const newNotification = await Notification.create(data);
     return newNotification;
   },
   getMyNotifications: async (userId: string) => {
-    return await Notification.find({ userId });
+    return await Notification.find({ receiverUserId: userId });
   },
   markAsRead: async (id: string, userId: string) => {
     const notification = await Notification.findOneAndUpdate(

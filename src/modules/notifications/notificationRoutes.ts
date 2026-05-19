@@ -7,7 +7,7 @@ import { roleMiddleware } from "../../middlewares/roleMiddleware";
 const notificationRoute = Router();
 
 notificationRoute.post("/create-notification",authMiddleware,roleMiddleware("SUPERADMIN", "ADMIN"),
-                  validateRequest(createNotificationSchema), notificationController.createNotification );
+                  notificationController.createNotification );
 notificationRoute.get("/get-notification",authMiddleware,  notificationController.getMyNotifications );
 notificationRoute.get("/:id/read",authMiddleware,  notificationController.markAsRead );
 notificationRoute.get("/read-all",authMiddleware,  notificationController.markAllAsRead );

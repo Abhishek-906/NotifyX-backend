@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 import { boolean } from "zod";
 
 export interface INotification extends Document{
-  userId:  mongoose.Types.ObjectId;
+  senderUserId:  mongoose.Types.ObjectId;
+  receiverUserId: mongoose.Types.ObjectId;
   title:string;
   message: string;
   isRead: boolean;
@@ -10,7 +11,12 @@ export interface INotification extends Document{
 }
 
 const notificationSchema = new mongoose.Schema<INotification>({
-    userId: {
+    senderUserId: {
+      type: Schema.Types.ObjectId,
+      ref:"User",
+      required:true
+    },
+    receiverUserId: {
       type: Schema.Types.ObjectId,
       ref:"User",
       required:true

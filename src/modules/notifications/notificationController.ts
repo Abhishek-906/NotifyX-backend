@@ -5,22 +5,39 @@ import { createNotificationSchema } from "./dto/notificationSchema";
 import { notificationService } from "./notificationService";
 import { AppError } from "../../utils/AppError";
 import { userService } from "../users/userService";
+import { getIO, getUserSocketMap } from "../../utils/socket";
 
 export const notificationController = {
-   
   createNotification: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-      const userId = (req as any).user?.userId;
-      if (!userId) {
+      const senderUserId = (req as any).user?.userId;
+      if (!senderUserId) {
         return next(new AppError("Unauthorized", 401));
       }
 
-      const { title, message } = req.body;
+      const { receiverUserId, title, message } = req.body;
+
       const sendMessage = await notificationService.createNotification({
-        userId,
+        receiverUserId,
         title,
         message,
+        senderUserId,
       });
+
+      const io = getIO();
+      const sockets = getUserSocketMap();
+
+      const socketId = sockets.get(receiverUserId);
+
+      // only emit if online
+      if (socketId) {
+        io.to(socketId).emit("new_notification", sendMessage);
+
+        console.log(`Notification emitted to ${receiverUserId}`);
+      } else {
+        console.log(`User ${receiverUserId} is offline`);
+      }
+
       return sendResponse(
         res,
         200,

@@ -1,13 +1,10 @@
-import type { env } from "node:process";
 import { connectDb } from "./config/db";
 import app from "./app";
 import dotenv from "dotenv";
 import { seedSuperAdmin } from "./seed/seedSuperAdmin";
 import http from "http";
 import { Server } from "socket.io";
-import express from "express";
-
-const userSocketMap = new Map<string, string>();
+import { setIO, getUserSocketMap } from "./utils/socket";
 
 async function startServer() {
   try {
@@ -25,14 +22,26 @@ async function startServer() {
       },
     });
 
+    setIO(io);
+
+    const userSocketMap = getUserSocketMap();
+
     io.on("connection", (socket) => {
       console.log("User connected:", socket.id);
 
-      socket.on("register", (userId:string)=>{
-        userSocket
-      })
+      socket.on("register", (userId: string) => {
+        userSocketMap.set(userId, socket.id);
+        console.log(`Mapped ${userId} → ${socket.id}`);
+      });
+
       socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
+        for (const [userId, socketId] of userSocketMap.entries()) {
+          if (socketId === socket.id) {
+            userSocketMap.delete(userId);
+            console.log(`Removed mapping for ${userId}`);
+            break;
+          }
+        }
       });
     });
 

@@ -17,7 +17,7 @@ export const loginUser = asyncHandler( async (req: Request, res: Response) => {
 
 export const getMe = asyncHandler(async (req: Request, res:Response) => {
   console.log("we also reach ehrer")
-  const userId = req.user?.userId;
+  const userId = (req as any).user?.userId;
 
   if (!userId) {
     throw new AppError("Unauthorized", 401);

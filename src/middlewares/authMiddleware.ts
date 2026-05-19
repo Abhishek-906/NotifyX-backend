@@ -9,7 +9,6 @@ export const authMiddleware = async(
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next(new AppError("Unauthorized", 401));
   }
