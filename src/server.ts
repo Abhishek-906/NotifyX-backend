@@ -34,6 +34,8 @@ async function startServer() {
         console.log(`Mapped ${userId} → ${socket.id}`);
       });
 
+      console.log("userSocketMap",userSocketMap);
+
       socket.on("disconnect", () => {
         for (const [userId, socketId] of userSocketMap.entries()) {
           if (socketId === socket.id) {

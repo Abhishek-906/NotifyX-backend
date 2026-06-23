@@ -2,7 +2,7 @@ import mongoose, { Mongoose } from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    username: {
+    fullName: {
       type: String,
       required: true,
       trim: true,
@@ -15,16 +15,20 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please use a valid email"],
+    },
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     },
     password: {
       type: String,
       required: true,
     },
-    lastSeen:{
-      type:String
+    lastSeen: {
+      type: String
     }
   },
   { timestamps: true },

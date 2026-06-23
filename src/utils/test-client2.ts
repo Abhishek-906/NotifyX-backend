@@ -4,7 +4,7 @@ const socket = io("http://localhost:3000");
 
 socket.on("connect", ()=>{
   console.log("connected", socket.id);
-  socket.emit("register", "0a0f31f614e8340936caedf0");
+  socket.emit("register", "1a0f31f614e1111111caedf1");
 })
 
 socket.on('new_notification', (data)=>{

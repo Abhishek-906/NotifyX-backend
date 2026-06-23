@@ -12,14 +12,14 @@ type LoginUserInput = z.infer<typeof loginSchema>;
 
 export const authService = {
   registerUser: async (data: RegisterUserInput) => {
-    const { username, email, password } = data;
+    const { fullName, email, password } = data;
     const emailExist = await User.findOne({ email });
     if (emailExist) {
       throw new AppError("Email already in use", 401);
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      username,
+      fullName,
       email,
       password: hashedPassword,
     });

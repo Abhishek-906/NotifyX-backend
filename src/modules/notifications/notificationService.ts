@@ -17,8 +17,9 @@ export const notificationService = {
     return await Notification.find({ receiverUserId: userId });
   },
   markAsRead: async (id: string, userId: string) => {
+    console.log("id, userId", {id, userId});
     const notification = await Notification.findOneAndUpdate(
-      { _id: id, userId },
+      { _id: id, receiverUserId: userId },
       { isRead: true },
       { new: true },
     );
@@ -28,8 +29,7 @@ export const notificationService = {
     return notification;
   },
   markAllAsRead: async (userId: string) => {
-    console.log("userId in service", userId);
-    const result = await Notification.updateMany({ userId,isRead: false }, { isRead: true });
+    const result = await Notification.updateMany({ receiverUserId: userId,isRead: false }, { isRead: true });
     return result;
   },
 };

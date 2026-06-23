@@ -4,6 +4,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { AppError } from "../../utils/AppError";
 import { userService } from "../users/userService";
+import { loginSchema } from "./dto/loginSchema";
 
 export const userRegister =  asyncHandler( async(req: Request, res: Response) => {
     const newUser = await authService.registerUser(req.body);
@@ -11,12 +12,11 @@ export const userRegister =  asyncHandler( async(req: Request, res: Response) =>
 });
 
 export const loginUser = asyncHandler( async (req: Request, res: Response) => {
-    const loginUser = await authService.loginUser(req.body);
+     const loginUser = await authService.loginUser(req.body);
         return sendResponse(res, 200, true, "Login successfully", loginUser );
 });
 
 export const getMe = asyncHandler(async (req: Request, res:Response) => {
-  console.log("we also reach ehrer")
   const userId = (req as any).user?.userId;
 
   if (!userId) {

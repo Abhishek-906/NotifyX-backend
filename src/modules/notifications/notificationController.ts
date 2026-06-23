@@ -17,7 +17,7 @@ export const notificationController = {
 
       const { receiverUserId, title, message } = req.body;
 
-      const sendMessage = await notificationService.createNotification({
+      const notification = await notificationService.createNotification({
         receiverUserId,
         title,
         message,
@@ -29,9 +29,16 @@ export const notificationController = {
 
       const socketId = sockets.get(receiverUserId);
 
+      const sendMessage = { id: notification._id,
+        title: notification.title,
+        message: notification.message,
+        senderUserId: notification.senderUserId,
+        createdAt: notification.createAt
+    }
       // only emit if online
       if (socketId) {
-        io.to(socketId).emit("new_notification", sendMessage);
+
+        io.to(socketId).emit("new_notification",  sendMessage);
 
         console.log(`Notification emitted to ${receiverUserId}`);
       } else {

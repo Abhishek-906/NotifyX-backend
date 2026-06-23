@@ -21,3 +21,29 @@ A backend system built with Node.js, Express, TypeScript, and MongoDB providing 
 - Auth middleware protection
 - Role-based access control
 - Notifications system
+
+
+
+Example:
+
+SUPER_ADMIN
+├─ Dashboard
+├─ Notifications
+├─ Send Notification
+├─ Manage Admins
+├─ Manage Users
+├─ Reports
+
+Admin:
+
+ADMIN
+├─ Dashboard
+├─ Notifications
+├─ Send Notification
+├─ Manage Users
+
+User:
+
+USER
+├─ Dashboard
+├─ Notifications

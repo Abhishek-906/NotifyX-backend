@@ -9,5 +9,10 @@ export const userService = {
         throw new AppError("User not presend", 401);
       }
       return user;
+  },
+  childCount:async(userId:string, role: string)=>{
+    console.log("sevice useid", userId);
+    console.log("sevice role", role);
+    return await User.countDocuments({role, parentId: userId })
   }
 }
