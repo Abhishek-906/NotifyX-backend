@@ -52,7 +52,7 @@ export const authService = {
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
       expiresIn: "1d",
     });
-
+    console.log("token gene by backend", token);
     return { user: userObj, token };
   },
 
