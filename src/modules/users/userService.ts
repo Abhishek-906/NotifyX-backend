@@ -7,14 +7,21 @@ export const userService = {
   getMe: async (userId: string) => {
     const user = await User.findById(userId).select("-password");
     if (!user) {
-      throw new AppError("User not presend", 401);
+      throw new AppError("User not present", 401);
     }
     return user;
   },
+  
   childCount: async (userId: string) => {
 
     return await User.countDocuments({ parentId: userId })
   },
+
+  getChildren: async (parentId: string , limit: number, page: number) => {
+
+    return await User.find({ parentId  })
+  },
+
   createUser: async (user: any, fullName: string, email: string, password: string) => {
     const loggedInUserRole = user.role;
     let newUserRole;
