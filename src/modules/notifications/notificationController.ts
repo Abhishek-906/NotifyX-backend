@@ -15,7 +15,7 @@ export const notificationController = {
         return next(new AppError("Unauthorized", 401));
       }
 
-      const { receiverUserId, title, message } = req.body;
+      const { receiverUserId, title, message } = (req as any).validated;
 
       const notification = await notificationService.createNotification({
         receiverUserId,
@@ -33,7 +33,7 @@ export const notificationController = {
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,
-        createdAt: notification.createAt
+        createdAt: notification.createdAt
     }
       // only emit if online
       if (socketId) {

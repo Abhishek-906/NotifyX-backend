@@ -7,7 +7,7 @@ export interface INotification extends Document{
   title:string;
   message: string;
   isRead: boolean;
-  createAt: Date;
+  createdAt: Date;
 }
 
 const notificationSchema = new mongoose.Schema<INotification>({

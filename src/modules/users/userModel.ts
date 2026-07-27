@@ -21,17 +21,22 @@ const userSchema = new mongoose.Schema(
     },
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'Users',
+      default: null
     },
     password: {
       type: String,
       required: true,
     },
     lastSeen: {
-      type: String
+      type: Date
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true },
 );
 
-export const User = mongoose.model("Users", userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);
