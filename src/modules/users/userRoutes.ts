@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getchildCount, createUser, getChildren } from './userController';
+import { getchildCount, createUser, getChildren } from './userController';
 import { validateRequest } from "../../middlewares/validateRequest";
 import {childCountSchema, userCreateSchema,getChildrenSchema } from './dto/userSchema';
 import { authMiddleware } from "../../middlewares/authMiddleware";

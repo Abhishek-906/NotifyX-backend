@@ -19,3 +19,9 @@ export const getChildrenSchema = z.object({
    limit: z.coerce.number().default(10),
    status: z.enum(["active", "blocked"]).optional(),
 });
+
+export const getChildrenSchema = z.object({
+    parentId: z.string(),
+    limit: z.number,
+    page: z.number
+});
