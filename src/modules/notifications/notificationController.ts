@@ -29,16 +29,17 @@ export const notificationController = {
 
       const socketId = sockets.get(receiverUserId);
 
-      const sendMessage = { id: notification._id,
+      const sendMessage = {
+        id: notification._id,
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,
         createdAt: notification.createdAt
-    }
+      }
       // only emit if online
       if (socketId) {
 
-        io.to(socketId).emit("new_notification",  sendMessage);
+        io.to(socketId).emit("new_notification", sendMessage);
 
         console.log(`Notification emitted to ${receiverUserId}`);
       } else {
@@ -54,17 +55,85 @@ export const notificationController = {
       );
     },
   ),
+  createNotificationForMultiUser: asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const senderUserId = (req as any).user?.userId;
+      if (!senderUserId) {
+        return next(new AppError("Unauthorized", 401));
+      }
+      const { receiverUserIds , title, message, includeHierarchy } = (req as any).validated;
+
+      const notifications = await notificationService.createNotificationForMultiUser({
+        receiverUserIds,
+        title,
+        message,
+        senderUserId,
+        includeHierarchy
+      });
+
+      const io = getIO();
+      const sockets = getUserSocketMap();
+
+      notifications.forEach((notification) => {
+    
+     const receiverUserId =  notification.receiverUserId.toString();
+      const socketId = sockets.get(receiverUserId);
+
+      const sendMessage = {
+        id: notification._id,
+        title: notification.title,
+        message: notification.message,
+        senderUserId: notification.senderUserId,
+        createdAt: notification.createdAt
+      }
+      // only emit if online
+      if (socketId) {
+        io.to(socketId).emit("new_notification", sendMessage);
+        console.log(`Notification emitted to ${receiverUserId}`);
+      } else {
+        console.log(`User ${receiverUserId} is offline`);
+      }
+      })
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Notification send successfully",
+        notifications,
+      );
+    },
+  ),
   getMyNotifications: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as any).user.userId;
+
       if (!userId) {
         throw new AppError("Unauthorized", 401);
       }
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const q = req.query.q as string;
+      const status = req.query.status as string;
 
-      const notifications =
-        await notificationService.getMyNotifications(userId);
-      return sendResponse(res, 200, true, "User Notifications", notifications);
-    },
+      const notifications = await notificationService.getMyNotifications(
+        userId,
+        {
+          page,
+          limit,
+          q,
+          status,
+        }
+      );
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "User Notifications",
+        notifications
+      );
+    }
   ),
   markAsRead: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {

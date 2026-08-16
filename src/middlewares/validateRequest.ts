@@ -12,7 +12,6 @@ export const validateRequest =
     if (!result.success) {
       return next(result.error);
     }
-    
     (req as any).validated = result.data;
 
     next();
