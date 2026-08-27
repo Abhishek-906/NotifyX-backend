@@ -20,3 +20,7 @@ export const getChildrenSchema = z.object({
    status: z.enum(["active", "blocked"]).optional(),
 });
 
+export const blockUserSchema = z.object({
+    userId: z.string()
+})
+

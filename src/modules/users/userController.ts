@@ -28,3 +28,10 @@ export const getChildren = asyncHandler(async (req: Request, res: Response) => {
     const result = await userService.getChildren(currentUser, query);
     return sendResponse(res, 200, true, "Successfully fetch children list", result);
 })
+
+export const blockUser = asyncHandler(async (req: Request, res: Response) => {
+    const currentUser = (req as any).user;
+    const targetUserId = (req as any ).params.userId;
+    const result = await userService.blockUser(currentUser, targetUserId);
+    return sendResponse(res, 200, true, "Successfully fetch block info list");
+})

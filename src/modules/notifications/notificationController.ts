@@ -30,7 +30,7 @@ export const notificationController = {
       const socketId = sockets.get(receiverUserId);
 
       const sendMessage = {
-        id: notification._id,
+        _id: notification._id,
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,
@@ -80,7 +80,7 @@ export const notificationController = {
       const socketId = sockets.get(receiverUserId);
 
       const sendMessage = {
-        id: notification._id,
+        _id: notification._id,
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,

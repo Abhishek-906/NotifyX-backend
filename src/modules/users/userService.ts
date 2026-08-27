@@ -12,7 +12,7 @@ export const userService = {
     }
     return user;
   },
-  
+
   childCount: async (userId: string) => {
 
     return await User.countDocuments({ parentId: userId })
@@ -31,34 +31,34 @@ export const userService = {
     if (user.role === "SUPERADMIN") {
 
       if (parentId) {
-  
-          const parentAdmin = await User.findOne({
-              _id: parentId,
-              role: "ADMIN",
-          });
-  
-          if (!parentAdmin) {
-              throw new AppError("Admin not found", 404);
-          }
-  
-          newUserRole = "USER";
-          newParentId = parentId;
-  
+
+        const parentAdmin = await User.findOne({
+          _id: parentId,
+          role: "ADMIN",
+        });
+
+        if (!parentAdmin) {
+          throw new AppError("Admin not found", 404);
+        }
+
+        newUserRole = "USER";
+        newParentId = parentId;
+
       } else {
-  
-          newUserRole = "ADMIN";
-          newParentId = user.userId;
-  
+
+        newUserRole = "ADMIN";
+        newParentId = user.userId;
+
       }
-  
-  } else if (user.role === "ADMIN") {
-  
+
+    } else if (user.role === "ADMIN") {
+
       newUserRole = "USER";
       newParentId = user.userId;
-  
-  } else {
+
+    } else {
       throw new AppError("Unauthorized", 403);
-  }
+    }
 
     const emailExist = await User.findOne({ email });
 
@@ -81,7 +81,7 @@ export const userService = {
 
     return safeUser;
   },
-  
+
   getChildren: async (
     currentUser: any,
     query: any
@@ -222,4 +222,33 @@ export const userService = {
       },
     };
   },
+
+  blockUser: async (currentUser: any,
+    targetUserId: any) => {
+    const targetUser = await User.findOne({ _id: targetUserId });
+
+    if (currentUser.role != 'SUPERADMIN' && targetUser.parentId != currentUser.userId) {
+      if (targetUser.role == 'SUPERADMIN') {
+        throw new AppError("Cannot block superadmin", 400);
+      } else {
+        throw new AppError("Unauthorized for block", 400);
+      }
+
+    }
+
+    const blockingUsers = await User.find({
+      parentId: targetUserId
+    })
+      .select("_id")
+      .lean();
+
+    const blockingUserIds = blockingUsers.map((user) => user._id);
+    blockingUserIds.push(targetUserId);
+
+    const result = await User.updateMany(
+        { _id: { $in: blockingUserIds }},
+        [{ $set: { isBlocked:  { $not: ["$isBlocked"] } } }]
+    )
+    console.log('block successfully');
+}
 };
