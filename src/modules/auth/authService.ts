@@ -36,6 +36,21 @@ export const authService = {
       throw new AppError("Invalid credentials", 401);
     }
 
+    if(existUser.isBlocked){
+       throw new AppError("Your account has been blocked. Please contact support to regain access.", 403);
+    }
+
+    if (existUser.role === "USER" && existUser.parentId) {
+      const parentAdmin = await User.findById(existUser.parentId).select("isBlocked");
+
+      if (!parentAdmin || parentAdmin.isBlocked) {
+        throw new AppError(
+          "Your account is currently unavailable. Please contact your administrator.",
+          403,
+        );
+      }
+    }
+
     const isValidPassword = await bcrypt.compare(password, existUser.password);
     if (!isValidPassword) {
       throw new AppError("Invalid credentials", 401);

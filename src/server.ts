@@ -5,7 +5,7 @@ import { seedSuperAdmin } from "./seed/seedSuperAdmin";
 import http from "http";
 import { Server } from "socket.io";
 import { setIO, getUserSocketMap } from "./utils/socket";
-
+import jwt from "jsonwebtoken";
 
 async function startServer() {
   try {
@@ -30,12 +30,22 @@ async function startServer() {
     io.on("connection", (socket) => {
       console.log("User connected:", socket.id);
 
-      socket.on("register", (userId: string) => {
-        userSocketMap.set(userId, socket.id);
-        console.log(`Mapped ${userId} → ${socket.id}`);
-      });
+      socket.on("register", (token: string) => {
+        try {
+          const payload = jwt.verify(token, process.env.JWT_SECRET as string);
 
-      console.log("userSocketMap",userSocketMap);
+          if (typeof payload === "string" || !payload.userId) {
+            socket.disconnect(true);
+            return;
+          }
+
+          const userId = String(payload.userId);
+          userSocketMap.set(userId, socket.id);
+          console.log(`Mapped ${userId} → ${socket.id}`);
+        } catch {
+          socket.disconnect(true);
+        }
+      });
 
       socket.on("disconnect", () => {
         for (const [userId, socketId] of userSocketMap.entries()) {

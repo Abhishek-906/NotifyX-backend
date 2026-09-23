@@ -32,6 +32,13 @@ export const getChildren = asyncHandler(async (req: Request, res: Response) => {
 export const blockUser = asyncHandler(async (req: Request, res: Response) => {
     const currentUser = (req as any).user;
     const targetUserId = (req as any ).params.userId;
-    const result = await userService.blockUser(currentUser, targetUserId);
-    return sendResponse(res, 200, true, "Successfully fetch block info list");
+    const { action } = (req as any).validated;
+    const result = await userService.blockUser(currentUser, targetUserId, action);
+    return sendResponse(
+        res,
+        200,
+        true,
+        action === "block" ? "User blocked successfully" : "User unblocked successfully",
+        result,
+    );
 })

@@ -223,32 +223,58 @@ export const userService = {
     };
   },
 
-  blockUser: async (currentUser: any,
-    targetUserId: any) => {
-    const targetUser = await User.findOne({ _id: targetUserId });
+  blockUser: async (
+    currentUser: { userId: string; role: "SUPERADMIN" | "ADMIN" },
+    targetUserId: string,
+    action: "block" | "unblock",
+  ) => {
+    const targetUser = await User.findById(targetUserId);
 
-    if (currentUser.role != 'SUPERADMIN' && targetUser.parentId != currentUser.userId) {
-      if (targetUser.role == 'SUPERADMIN') {
-        throw new AppError("Cannot block superadmin", 400);
-      } else {
-        throw new AppError("Unauthorized for block", 400);
-      }
-
+    if (!targetUser) {
+      throw new AppError("User not found", 404);
     }
 
-    const blockingUsers = await User.find({
-      parentId: targetUserId
-    })
-      .select("_id")
-      .lean();
+    if (targetUser._id.toString() === currentUser.userId) {
+      throw new AppError("You cannot block or unblock yourself", 400);
+    }
 
-    const blockingUserIds = blockingUsers.map((user) => user._id);
-    blockingUserIds.push(targetUserId);
+    if (targetUser.role === "SUPERADMIN") {
+      throw new AppError("SuperAdmin accounts cannot be blocked", 403);
+    }
 
-    const result = await User.updateMany(
-        { _id: { $in: blockingUserIds }},
-        [{ $set: { isBlocked:  { $not: ["$isBlocked"] } } }]
-    )
-    console.log('block successfully');
-}
+    const isSuperAdmin = currentUser.role === "SUPERADMIN";
+    const isDirectChild = targetUser.parentId?.toString() === currentUser.userId;
+
+    if (!isSuperAdmin && (targetUser.role !== "USER" || !isDirectChild)) {
+      throw new AppError("You do not have permission to manage this user", 403);
+    }
+
+    if (action === "block") {
+      if (targetUser.isBlocked) {
+        throw new AppError("User is already blocked", 400);
+      }
+
+      targetUser.isBlocked = true;
+      targetUser.blockedBy = new mongoose.Types.ObjectId(currentUser.userId);
+    } else {
+      const wasBlockedByRequester = targetUser.blockedBy?.toString() === currentUser.userId;
+
+      if (!isSuperAdmin && !wasBlockedByRequester) {
+        throw new AppError("Only the SuperAdmin can unblock this user", 403);
+      }
+
+      if (!targetUser.isBlocked) {
+        throw new AppError("User is not blocked", 400);
+      }
+
+      targetUser.isBlocked = false;
+      targetUser.blockedBy = null;
+    }
+
+    await targetUser.save();
+
+    const user = targetUser.toObject();
+    const { password: _password, ...safeUser } = user;
+    return safeUser;
+  },
 };

@@ -21,6 +21,10 @@ export const getChildrenSchema = z.object({
 });
 
 export const blockUserSchema = z.object({
-    userId: z.string()
+    userId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID")
 })
+
+export const blockActionSchema = z.object({
+    action: z.enum(["block", "unblock"]),
+});
 

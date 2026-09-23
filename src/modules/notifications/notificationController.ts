@@ -6,17 +6,25 @@ import { notificationService } from "./notificationService";
 import { AppError } from "../../utils/AppError";
 import { userService } from "../users/userService";
 import { getIO, getUserSocketMap } from "../../utils/socket";
+import { User } from "../users/userModel";
 
 export const notificationController = {
   createNotification: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const senderUserId = (req as any).user?.userId;
+      console.log("user data:", (req as any).user?.role );
       if (!senderUserId) {
         return next(new AppError("Unauthorized", 401));
       }
 
       const { receiverUserId, title, message } = (req as any).validated;
 
+     if((req as any).user?.role!='SUPERADMIN'){
+        const child = await User.findOne({_id:receiverUserId});
+        if(child?.parentId!=senderUserId){
+         return next(new AppError("You do not have permission to send a notification to this user.", 403));
+        }
+     }
       const notification = await notificationService.createNotification({
         receiverUserId,
         title,

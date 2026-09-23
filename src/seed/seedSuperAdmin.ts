@@ -34,3 +34,4 @@ export const seedSuperAdmin = async () => {
     console.log("Issue while creating superadmin: ", err);
   }
 };
+

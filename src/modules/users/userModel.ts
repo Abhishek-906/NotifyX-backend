@@ -1,4 +1,16 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
+
+
+interface IUser {
+  fullName: string,
+  role: "SUPERADMIN" | "ADMIN" | "USER",
+  email: string,
+  parentId: mongoose.Types.ObjectId | null,
+  password: string,
+  lastSeen?: Date,
+  isBlocked: boolean,
+  blockedBy: mongoose.Types.ObjectId | null,
+}
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,6 +46,11 @@ const userSchema = new mongoose.Schema(
     isBlocked: {
       type: Boolean,
       default: false
+    },
+    blockedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     }
   },
   { timestamps: true },
