@@ -42,7 +42,9 @@ export const notificationController = {
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,
-        createdAt: notification.createdAt
+        createdAt: notification.createdAt,
+        receiverUserId: receiverUserId,
+        isRead:false
       }
       // only emit if online
       if (socketId) {
@@ -92,8 +94,12 @@ export const notificationController = {
         title: notification.title,
         message: notification.message,
         senderUserId: notification.senderUserId,
-        createdAt: notification.createdAt
+        createdAt: notification.createdAt,
+        receiverUserId: receiverUserId,
+        isRead:false
       }
+
+      console.log("sendMessage in multi user", sendMessage);
       // only emit if online
       if (socketId) {
         io.to(socketId).emit("new_notification", sendMessage);

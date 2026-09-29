@@ -6,6 +6,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { setIO, getUserSocketMap } from "./utils/socket";
 import jwt from "jsonwebtoken";
+import { User } from "./modules/users/userModel";
 
 async function startServer() {
   try {
@@ -30,7 +31,7 @@ async function startServer() {
     io.on("connection", (socket) => {
       console.log("User connected:", socket.id);
 
-      socket.on("register", (token: string) => {
+      socket.on("register", async (token: string) => {
         try {
           const payload = jwt.verify(token, process.env.JWT_SECRET as string);
 
@@ -40,8 +41,24 @@ async function startServer() {
           }
 
           const userId = String(payload.userId);
-          userSocketMap.set(userId, socket.id);
-          console.log(`Mapped ${userId} → ${socket.id}`);
+          const loggendInUser = await User.findOne({ _id: userId });
+          if (!loggendInUser) {
+            socket.disconnect(true);
+            return ;
+          }
+          const logginUserParent = await User.findOne({ _id: loggendInUser.parentId });
+           if(loggendInUser.role!='SUPERADMIN' && !logginUserParent){
+            socket.disconnect(true);
+            return;
+           }
+
+          if (loggendInUser.role == 'SUPERADMIN'  || loggendInUser.isBlocked == false && logginUserParent?.isBlocked == false) {
+            userSocketMap.set(userId, socket.id);
+            console.log(`Mapped ${userId} → ${socket.id}`);
+          }else{
+              socket.disconnect(true);
+            return;
+          }
         } catch {
           socket.disconnect(true);
         }
