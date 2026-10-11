@@ -190,6 +190,13 @@ export const notificationService = {
     };
   },
 
+  getRecentSentNotifications: async (senderUserId: string) => {
+    return Notification.find({ senderUserId })
+      .populate("receiverUserId", "fullName email role")
+      .sort({ createdAt: -1 })
+      .limit(5);
+  },
+
   markAsRead: async (id: string, userId: string) => {
     const notification = await Notification.findOneAndUpdate(
       { _id: id, receiverUserId: userId },

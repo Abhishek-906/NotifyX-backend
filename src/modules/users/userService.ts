@@ -1,5 +1,6 @@
 import { AppError } from "../../utils/AppError";
 import { User } from "./userModel"
+import { Notification } from "../notifications/notificationModel";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
@@ -15,7 +16,7 @@ export const userService = {
 
   childCount: async (userId: string) => {
 
-    return await User.countDocuments({ parentId: userId })
+  return await User.countDocuments({ parentId: userId })
   },
   createUser: async (
     user: any,
@@ -277,4 +278,11 @@ export const userService = {
     const { password: _password, ...safeUser } = user;
     return safeUser;
   },
+
+  dashboardSummary: async(userId: string)=>{
+     const activeChilds = await User.countDocuments({parentId: userId, isBlocked: false });
+     const blockedChilds = await User.countDocuments({parentId: userId, isBlocked: true });
+     const unreadNotifications = await Notification.countDocuments({ receiverUserId: userId, isRead: false });
+     return {activeChilds, blockedChilds, unreadNotifications } ;
+  }
 };

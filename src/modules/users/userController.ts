@@ -42,3 +42,16 @@ export const blockUser = asyncHandler(async (req: Request, res: Response) => {
         result,
     );
 })
+
+export const dashboardSummary = asyncHandler(async (req: Request, res: Response ) => {
+     const userId = (req as any).user?.userId;
+
+     const dashboardSummary = await userService.dashboardSummary(userId);
+     return sendResponse(
+        res,
+        200,
+        true,
+        "Dashboard summary fetched successfully",
+        dashboardSummary
+    );
+})

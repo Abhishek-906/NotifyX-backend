@@ -149,6 +149,25 @@ export const notificationController = {
       );
     }
   ),
+  getRecentSentNotifications: asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const senderUserId = (req as any).user?.userId;
+
+      if (!senderUserId) {
+        throw new AppError("Unauthorized", 401);
+      }
+
+      const notifications = await notificationService.getRecentSentNotifications(senderUserId);
+
+      return sendResponse(
+        res,
+        200,
+        true,
+        "Recent sent notifications fetched successfully",
+        notifications,
+      );
+    },
+  ),
   markAsRead: asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const userId = (req as any).user.userId;

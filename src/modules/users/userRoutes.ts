@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getchildCount, createUser, getChildren, blockUser } from './userController';
+import { getchildCount, createUser, getChildren, blockUser, dashboardSummary } from './userController';
 import { validateRequest } from "../../middlewares/validateRequest";
 import {childCountSchema, userCreateSchema, getChildrenSchema, blockUserSchema, blockActionSchema } from './dto/userSchema';
 import { authMiddleware } from "../../middlewares/authMiddleware";
@@ -11,5 +11,6 @@ const userRoutes = Router();
  userRoutes.post('/createUser', authMiddleware, roleMiddleware('ADMIN', 'SUPERADMIN'), validateRequest(userCreateSchema),createUser );
  userRoutes.get('/getChildren', authMiddleware, roleMiddleware('ADMIN', 'SUPERADMIN'), validateRequest(getChildrenSchema, "query"),getChildren );
  userRoutes.patch('/blockUser/:userId', authMiddleware, roleMiddleware('ADMIN', 'SUPERADMIN'), validateRequest(blockUserSchema, "params"), validateRequest(blockActionSchema), blockUser );
+ userRoutes.get('/dashboard/summary', authMiddleware, roleMiddleware('ADMIN', 'SUPERADMIN', 'USER'), dashboardSummary );
 
  export default userRoutes;
