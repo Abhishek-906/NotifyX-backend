@@ -1,6 +1,7 @@
 import { Notification } from "./notificationModel";
 import { AppError } from "../../utils/AppError";
 import { User } from "../users/userModel";
+import { auditService } from "../audit/auditService";
 
 type CreateNotificationServiceInput = {
   senderUserId: string;
@@ -43,6 +44,15 @@ export const notificationService = {
     if (!notification) {
       throw new AppError("Notification not found", 404);
     }
+
+    await auditService.createAudit({
+      actorUserId: data.senderUserId,
+      action: "NOTIFICATION_SENT",
+      targetUserId: data.receiverUserId,
+      metadata: {
+        notificationTitle: data.title,
+      },
+    });
 
     return notification;
   },
@@ -123,6 +133,16 @@ export const notificationService = {
       "senderUserId",
       "fullName email role"
     );
+
+    await auditService.createAudit({
+      actorUserId: senderUserId,
+      action: "BULK_NOTIFICATION_SENT",
+      targetUserId: null,
+      metadata: {
+        notificationTitle: title,
+        recipientCount: notifications.length,
+      },
+    });
 
     return populatedNotifications;
   },

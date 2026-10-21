@@ -3,6 +3,7 @@ import { User } from "./userModel"
 import { Notification } from "../notifications/notificationModel";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { auditService } from "../audit/auditService";
 
 export const userService = {
 
@@ -75,6 +76,13 @@ export const userService = {
       password: hashPassword,
       role: newUserRole,
       parentId: newParentId,
+    });
+
+    await auditService.createAudit({
+      actorUserId: user.userId,
+      action: "ACCOUNT_CREATED",
+      targetUserId: newUser._id,
+      metadata: {},
     });
 
     const userObj = newUser.toObject();
@@ -273,6 +281,16 @@ export const userService = {
     }
 
     await targetUser.save();
+
+    if(action === "block"){
+            await auditService.createAudit({ actorUserId:currentUser.userId, action: "ACCOUNT_BLOCKED" , targetUserId:targetUser._id, metadata: {
+       description: "Blocked account"
+      }});
+    }else{
+      await auditService.createAudit({  actorUserId:currentUser.userId, action: "ACCOUNT_UNBLOCKED" , targetUserId:targetUser._id , metadata: {
+       description: "UnBlocked account"
+      }});
+    }
 
     const user = targetUser.toObject();
     const { password: _password, ...safeUser } = user;

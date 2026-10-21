@@ -6,6 +6,8 @@ import { AppError } from "../../utils/AppError";
 import { userService } from "../users/userService";
 import { loginSchema } from "./dto/loginSchema";
 
+
+//Need to remove this api.
 export const userRegister =  asyncHandler( async(req: Request, res: Response) => {
     const newUser = await authService.registerUser(req.body);
     return sendResponse(res, 201, true, "User Register successfully", newUser );

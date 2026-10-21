@@ -2,7 +2,7 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { userService } from "./userService";
 import { sendResponse } from "../../utils/sendResponse";
 import { Request, Response } from "express";
-import { childCountSchema } from './dto/userSchema'
+import { childCountSchema } from './dto/userSchema';
 
 export const  getchildCount = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.userId;
@@ -34,6 +34,8 @@ export const blockUser = asyncHandler(async (req: Request, res: Response) => {
     const targetUserId = (req as any ).params.userId;
     const { action } = (req as any).validated;
     const result = await userService.blockUser(currentUser, targetUserId, action);
+
+
     return sendResponse(
         res,
         200,
